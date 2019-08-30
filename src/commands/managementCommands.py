@@ -130,7 +130,7 @@ async def accept_coc(args, event_type, metadata):
         roles.append(guild.get_role(role))
 
     try:
-        user = await guild.get_member(metadata.get("user").id)
+        user = guild.get_member(metadata.get("user").id)
         
         # ensure user is not already a member and does not already have the coc role
         if(config.member_role[metadata.get("server").id] not in user.roles and role[0] not in user.roles):
