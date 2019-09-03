@@ -10,6 +10,7 @@ from string import Template
 from models import Service, Server, Chat, User, Session, get_or_create
 from helpers import commandHelpers
 import asyncio
+
 logger = logging.getLogger(__name__)
 
 logging.getLogger("discord").setLevel(logging.WARNING)
@@ -17,9 +18,13 @@ logging.getLogger("websockets").setLevel(logging.WARNING)
 
 # Only log debug messages in debug mode
 if (config.DEBUG):
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, 
+                        format='%(asctime)s %(levelname)-8s %(message)s', 
+                        datefmt='%Y-%m-%d %H:%M:%S')
 else:
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(levelname)-8s %(message)s', 
+                        datefmt='%Y-%m-%d %H:%M:%S')
 
 class DiscordClient(discord.Client):
     def __init__(self):
@@ -266,7 +271,7 @@ class DiscordClient(discord.Client):
             return None
         
         # Metadata for use by commands and reactions
-        metadata = {"session": session, "service": self.service, "user":current_user, "server":current_server, "chat":current_channel, "message":message, "client":self}
+        metadata = {"service": self.service, "user":current_user, "server":current_server, "chat":current_channel, "message":message, "client":self}
         return metadata
 
 def hasApprovedRole(discordUser):

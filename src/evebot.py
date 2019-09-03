@@ -3,7 +3,7 @@ import commandRegistry
 import re
 import config
 import logging
-from models import TagReactables
+from models import TagReactables, Session
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class EveBot:
         allTagReacts = commandRegistry.tagReactablesDict
         allRestrictions = commandRegistry.restrictionsDict
         
-        session = metadata.get("session")
+        session = Session()
         reactable = session.query(TagReactables).filter_by(message_id=metadata.get("message").id).first()
 
         if(reactable is None):

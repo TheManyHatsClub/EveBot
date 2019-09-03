@@ -2,7 +2,7 @@ import commandRegistry
 import asyncio
 import config
 import logging
-from models import TagReactables
+from models import Session, TagReactables
 from rolemessages import TMHCRoles, TestRoles
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ async def do_add_role_reactable(message, roleid, metadata):
     emoji = "🔼"
     await message.add_reaction(emoji)
 
-    session = metadata["session"]
+    session = Session()
     instance = session.query(TagReactables).filter_by(message_id=message.id).first()
     if(instance):
         instance.function_name="toggle_role"
