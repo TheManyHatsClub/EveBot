@@ -71,7 +71,7 @@ class DiscordClient(discord.Client):
             return
 
         # Processes messages from commands and handles errors.
-        async def sendReply(text, edit=False, append=False, delete_after=None, **kwargs):
+        async def sendReply(text, edit=False, append=False, delete_after=None, file=None, **kwargs):
             # Attempts to send a message up to MAX_RETRY times because sometimes discord is rubbish
             MAX_RETRY = 3
             
@@ -79,9 +79,11 @@ class DiscordClient(discord.Client):
                 if(count < MAX_RETRY):
                     try:
                         if(edit):
-                            return await edit.edit(text)
+                            return await edit.edit(content=text)
                         elif(append):
-                            return await append.edit(message.content + text)
+                            return await append.edit(content=message.content + text)
+                        elif(file):
+                            return await message.channel.send(text, file=discord.File(file)) 
 
                         return await message.channel.send(text)
                     except discord.HTTPException as e:

@@ -4,6 +4,8 @@ import config
 import logging
 from models import Session, TagReactables
 from rolemessages import TMHCRoles, TestRoles
+from discord import ChannelType
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -169,22 +171,129 @@ async def clearChannel(channel):
         messg_count += 1
         
         if len(message_list) == 99:
-            try:
-                await channel.delete_messages(message_list)
-                await asyncio.sleep(1)
-            except Exception as e:
-                logger.error(e)
-                for message in message_list:
-                    await message.delete()
-                    await asyncio.sleep(1)
+            await doBulkDelete(message_list, channel)
             message_list = []
+
+    await doBulkDelete(message_list, channel)
+
+async def clearChannelOfUser(channel, userid):
+    message_list = []
+    messg_count = 0
+
+    async for message in channel.history(limit=None):
+        if(str(message.author.id) == str(userid)):
+            message_list.append(message)
+            messg_count += 1
+            
+            if len(message_list) == 99:
+                await doBulkDelete(message_list, channel)
+                message_list = []
+
+    await doBulkDelete(message_list, channel)
+
+
+async def bulkDeleteAll(messages, channel):
+    message_list = []
+    messg_count = 0
+
+    for message in messages:
+        message_list.append(message)
+        messg_count += 1
+        
+        if len(message_list) == 99:
+            await doBulkDelete(message_list, channel)
+            message_list = []
+
+    await doBulkDelete(message_list, channel)
+
+async def doBulkDelete(message_list, channel):
     try:
         await channel.delete_messages(message_list)
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
     except Exception as e:
-        logger.error(e)
+        logger.error("Error bulk deleting messages: " + str(e))
+        await asyncio.sleep(1.5)
+        await doBulkDeleteOneAtATime(message_list)
+
+async def doBulkDeleteOneAtATime(message_list):
+    logger.info("Deleting messages one at a time, this will take a while")
+    try:
         for message in message_list:
             await message.delete()
-            await asyncio.sleep(1)
-    message_list = []
+            await asyncio.sleep(1.5)
+    except Exception as e:
+        logger.error("Error deleting message: " + str(e))
 
+@restrictions(config.servers.get("TMHC"), config.servers.get("Test"))
+@command("gdpr")
+@help_text("Compile GDPR data on a user. Usage: 'gdpr <userid>'.")
+async def getGDPR(command, metadata, sendReply):
+
+    filename = "gdprdata/data.txt"
+    mymessage = await sendReply("Compiling GDPR data...")
+
+    userid = command[1][0]
+    guild = metadata["message"].guild
+    
+    with open(filename, 'w') as f:
+        for channel in guild.channels:
+            try:
+                if channel.type == ChannelType.text:
+                    await sendReply("Processing data for: " + str(channel), edit=mymessage)
+                    async for message in channel.history(limit=None):
+                        if isGDPRableMessage(message, userid):
+                            f.write(messageToString(message))
+            except Exception as e:
+                await sendReply("Exception while processing channel: " + str(channel))
+                logger.error(e)
+                pass
+    
+    await sendReply("GDPR Data Compiled!", edit=mymessage)
+    filesize = os.path.getsize(filename)
+
+    if(filesize < 8*1000*1000):
+        await sendReply("Data: ", file=filename)
+    else:
+        await sendReply("Data is too large ("+str(filesize)+" megabytes) to send via discord! :(")
+
+
+@restrictions(config.servers.get("TMHC"), config.servers.get("Test"))
+@command("gdprdelete")
+@help_text("Delete all messages sent by a user. Usage: 'gdprdelete <userid>'.")
+async def deleteGDPR(command, metadata, sendReply):
+    userid = command[1][0]
+    guild = metadata["message"].guild
+
+    mymessage = await sendReply("Deleting messages sent by "+userid+" in compliance with gdpr.")
+
+    for channel in guild.channels:
+        try:
+            if channel.type == ChannelType.text:
+                await sendReply("Processing data for: " + str(channel), edit=mymessage)
+                await clearChannelOfUser(channel, userid)
+        except Exception as e:
+            await sendReply("Exception while processing channel: " + str(channel))
+            logger.error(e)
+            pass
+    
+    await sendReply("Data for user " + str(userid) + " deleted!", edit=mymessage)
+
+
+
+def isGDPRableMessage(message, userid):
+    for user in message.mentions:
+        if(str(user.id) == str(userid)):
+            return True
+    return str(message.author.id) == str(userid)
+
+
+def messageToString(message):
+    basestring = "Author: " + str(message.author.id) + "\n" + \
+            "Server: " + str(message.guild.name) + "\n" + \
+            "Channel: "+ str(message.channel.name) + "\n" + \
+            "Message: " + str(message.content)
+
+    attachments = "" if len(message.attachments) == 0 else "\nAttachments: " + str(message.attachments)
+    terminator = "\n---------------------------------------\n"
+
+    return basestring + attachments + terminator
