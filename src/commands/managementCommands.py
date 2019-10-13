@@ -171,7 +171,7 @@ async def getGDPR(command, metadata, sendReply):
     await sendReply("Booting up worker...")
     client = GDPRClient.GDPRClient()
     loop = asyncio.get_event_loop()
-    loop.create_task(client.start(apikeys.gdprkey))
+    loop.create_task(client.start(apikeys.workerkey))
     await client.wait_until_ready()
     userid = command[1][0]
     guildid = metadata["message"].guild.id
@@ -186,7 +186,7 @@ async def deleteGDPR(command, metadata, sendReply):
     await sendReply("Booting up worker...")
     client = GDPRClient.GDPRClient()
     loop = asyncio.get_event_loop()
-    loop.create_task(client.start(apikeys.gdprkey))
+    loop.create_task(client.start(apikeys.workerkey))
     await client.wait_until_ready()
     userid = command[1][0]
     guildid = metadata["message"].guild.id
