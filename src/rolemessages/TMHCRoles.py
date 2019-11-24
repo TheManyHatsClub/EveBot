@@ -46,4 +46,5 @@ Other vanity roles may also be earned through participation in the community!\n\
 (616707872486850561, "Memes"),
 (556171784848932864, "Politics"),
 (562478524255043598, "Philosophy"),
-(589590654800101383, "HealthyHacker")]
+(589590654800101383, "HealthyHacker"),
+(648128168372338711, "Server Complaints")]

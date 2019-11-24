@@ -57,8 +57,8 @@ def get_help_message(server):
         function_name = commandsDict[given_command].__name__
         
         # If help text exists for this command and the command is able to be used in the server
-        if (function_name in help_texts.keys() and (restrictionsDict.get(command_func, None) is None or server in restrictionsDict.get(command_func, None))):
-            if (not (function_name in helpData.keys())):
+        if function_name in help_texts.keys() and (restrictionsDict.get(command_func, None) is None or server in restrictionsDict.get(command_func, None)):
+            if not (function_name in helpData.keys()):
                 helpData[function_name] = {"helpText": help_texts[function_name], "aliases": [given_command]}
             else:
                 helpData[function_name]["aliases"].append(given_command)
@@ -72,12 +72,12 @@ def get_help_message(server):
     return help_message
 
 
-#Import all other commands and add them to the commands file
+# Import all other commands and add them to the commands file
 from commands import *
 
-#Generate help text
+# Generate help text
 @help_text("This command will display help text.")
 @command("help")
 async def help(command, metadata, sendReply):
     help_message = get_help_message(metadata["server"].id)
-    await basicResponseHelpers.sendInStages(help_message, sendReply)
+    await basicResponseHelpers.send_in_stages(help_message, sendReply)

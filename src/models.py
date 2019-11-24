@@ -1,10 +1,12 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean, Date
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 Base = declarative_base()
 engine = create_engine('sqlite:///sqlite.db', echo=False, pool_recycle=3600)
-Session = sessionmaker(bind=engine)
+sessionfactory = sessionmaker(bind=engine)
+Session = scoped_session(sessionfactory)
+
 
 # A service which contains servers, chats, and users (e.g, 'discord' or 'irc')
 class Service(Base):
@@ -15,6 +17,7 @@ class Service(Base):
 
     def __repr__(self):
         return "<Service(name='%s', id='%s')>" % (self.name, self.id)
+
 
 class User(Base):
     __tablename__="user"
@@ -28,8 +31,9 @@ class User(Base):
     def __repr__(self):
         return "<User(username='%s', service='%s')>" % (self.username, self.service_id)
 
+
 class Server(Base):
-    __tablename__="server"
+    __tablename__ = "server"
 
     # Each server is unique within its service
     id = Column(String(50), primary_key=True)
@@ -41,8 +45,9 @@ class Server(Base):
         return "<Server(name='%s', service='%s')>" % (
                              self.server_name, self.service_id)
 
+
 class Chat(Base):
-    __tablename__="chat"
+    __tablename__ = "chat"
 
     # Each chat is unique within a server
     id = Column(String(50), primary_key=True)
@@ -51,12 +56,14 @@ class Chat(Base):
     chat_name = Column(String(100))
     nsfw = Column(Boolean(create_constraint=False))
 
+
 class TagReactables(Base):
-    __tablename__="tagreactables"
+    __tablename__ = "tagreactables"
 
     message_id = Column(String(20), primary_key=True)
     function_name = Column(String(50))   # Used to find the function to use
     function_args = Column(String(100))  # Used as args to the function (e.g, in order to specify roles to assign)
+
 
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
@@ -72,5 +79,6 @@ def get_or_create(session, model, **kwargs):
             session.rollback()
 
         return instance
+
 
 Base.metadata.create_all(engine)
