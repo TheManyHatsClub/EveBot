@@ -16,7 +16,7 @@ else:
 class CleanupClient(discord.Client):
     async def on_ready(self):
         logger.info("Initiating log cleanup.")
-        channel = self.get_channel(config.log_channels.get(354565059675947009))
+        channel = self.get_channel(config.log_channels.get(config.servers.get("TMHC")))
         if(channel is None):
             logger.error("Unable to find log channel!")
         messg_count = 0 
@@ -51,4 +51,4 @@ class CleanupClient(discord.Client):
 
 if(__name__ == "__main__"):
     client = CleanupClient()
-    client.run(apikeys.discordkey)
+    client.run(apikeys.workerkey)

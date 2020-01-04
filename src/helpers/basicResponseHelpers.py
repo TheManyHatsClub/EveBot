@@ -3,20 +3,20 @@ from helpers import fileHelpers
 
 MAX_MESSAGE_SIZE = 2000
 
-#Send a message in different parts
-async def sendInStages(message, sendReply):
+# Send a message in different parts
+async def send_in_stages(message, sendReply):
     counter = 0
 
-    #The maximum number of characters to send in one message
+    # The maximum number of characters to send in one message
     breakMax = MAX_MESSAGE_SIZE
 
     while (counter+breakMax) < len(message):
         breakpoint = breakMax
 
-        #Best to break at the end of a sentence
+        # Best to break at the end of a sentence
         for char in reversed(range(0, breakMax)):
             if message[counter+char] == ".":
-                #Break at the first space after this full stop
+                # Break at the first space after this full stop
                 print(message[counter+char:])
                 breakpoint = char+message[counter+char:].index(" ") + 1
                 print(breakpoint)
@@ -24,14 +24,14 @@ async def sendInStages(message, sendReply):
 
         print("passed ." + str(breakpoint))
 
-        #If we cant break at the end of a sentence, break on the rightmost space we can find
+        # If we cant break at the end of a sentence, break on the rightmost space we can find
         if breakpoint == breakMax:
             for char in reversed(range(0, breakMax)):
                 if message[counter+char] == " ":
                     breakpoint = char + 1
                     break
 
-            #Else breakpoint == breakMax and we will just have to break at whatever is there
+            # Else breakpoint == breakMax and we will just have to break at whatever is there
 
         await sendReply(message[counter:counter+breakpoint])
         counter += breakpoint
