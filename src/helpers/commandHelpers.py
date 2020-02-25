@@ -19,7 +19,7 @@ def get_arg_string(command):
     return " ".join(command)
 
 def is_parameterised(string):
-    return (len(string) > 2 and string[0] == "(" and string[0][-1] == ")")
+    return (len(string) > 2 and string[0] == "(" and string[-1] == ")")
 
 def asCommandArg(*args):
     return [[],[i for i in args]]
