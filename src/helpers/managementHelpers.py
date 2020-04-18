@@ -76,12 +76,18 @@ def userPostedMessage(message, userid):
     return str(message.author.id) == str(userid)
 
 def messageToString(message):
-    basestring = "Author: " + str(message.author.id) + "\n" + \
+    basestring = "Author: " + str(message.author.id) + " - " + str(message.author.name) + "#" + str(message.author.discriminator) + "\n" + \
             "Server: " + str(message.guild.name) + "\n" + \
             "Channel: "+ str(message.channel.name) + "\n" + \
-            "Message: " + str(message.content)
+            "Created at: "+ str(message.created_at) + "\n"
+
+    edited = "" if message.edited_at is None else "Edited at: " + str(message.edited_at) + "\n"
+    content = "Message: " + str(message.content)
+    
+    basestring += edited + content
 
     attachments = "" if len(message.attachments) == 0 else "\nAttachments: " + str(message.attachments)
+    embeds = "" if len(message.embeds) == 0 else "\nEmbeds: " + str(message.embeds)
     terminator = "\n---------------------------------------\n"
 
-    return basestring + attachments + terminator
+    return basestring + attachments + embeds + terminator

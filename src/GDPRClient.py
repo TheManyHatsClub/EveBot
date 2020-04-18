@@ -2,6 +2,7 @@ import datetime
 import discord
 import apikeys
 import logging
+import asyncio
 import config 
 import time
 from discord import ChannelType
@@ -37,14 +38,25 @@ class GDPRClient(discord.Client):
             for channel in guild.channels:
                 try:
                     if channel.type == ChannelType.text:
+                        count = 0
+                        self.logger.debug("Processing gdpr data for: " + str(channel)) 
                         await sendReply("Processing data for: " + str(channel), edit=mymessage)
                         async for message in channel.history(limit=None):
+                            count += 1
+
                             if isGDPRableMessage(message, userid):
                                 f.write(managementHelpers.messageToString(message))
+
+                            if(count == 500):
+                                self.logger.debug("Processed 500 messages")
+                                count = 0
+                                asyncio.sleep(1)
                 except Exception as e:
                     await sendReply("Exception while processing channel: " + str(channel))
                     self.logger.error(e)
                     pass
+
+                await asyncio.sleep(1)
         
         await sendReply("GDPR Data Compiled!", edit=mymessage)
         filesize = os.path.getsize(filename)
