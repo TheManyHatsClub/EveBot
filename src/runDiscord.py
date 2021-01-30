@@ -26,10 +26,10 @@ else:
 
 
 class DiscordClient(discord.Client):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.eve = None
         self.service = None
-        super().__init__()
+        super().__init__(**kwargs)
 
     # Sets up the bot and makes sure it knows who it is.
     async def on_ready(self):
@@ -129,26 +129,26 @@ class DiscordClient(discord.Client):
 
     async def do_raw_reactions(self, event, event_type):
         channel = self.get_channel(event.channel_id)
-
         if channel is None:
             return
-    
+
+        guild = self.get_guild(event.guild_id)
+        if guild is None:
+            return
+
+        user = self.get_user(event.user_id)
+
+        if user is None:
+            return
+
+        # other bots are unworthy of our attention
+        if user.bot:
+            return
+
         try:
             message = await channel.fetch_message(event.message_id)
         except (discord.NotFound, discord.Forbidden, discord.HTTPException) as e:
             logger.error("Error processing reaction_add: " + str(e))
-            return
-            
-        guild = self.get_guild(event.guild_id)
-        if guild is None:
-            return
-        
-        user = self.get_user(event.user_id)
-        if user is None:
-            return
-        
-        # other bots are unworthy of our attention
-        if user.bot:
             return
 
         # runs only on debug channels if debug is enabled.
@@ -203,5 +203,7 @@ class DiscordClient(discord.Client):
 
 
 if __name__ == "__main__":
-    client = DiscordClient()
+    intents = discord.Intents.default()
+    intents.members = True
+    client = DiscordClient(intents=intents)
     client.run(apikeys.discordkey)

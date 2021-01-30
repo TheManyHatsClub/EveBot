@@ -43,7 +43,6 @@ Other vanity roles may also be earned through participation in the community!\n\
 (532972221040295937, "JHDiscord"),
 
 "\n**Channel Opt-Ins**\n",
-(616707872486850561, "Memes"),
 (556171784848932864, "Politics"),
-(562478524255043598, "Philosophy"),
+(400040170403135498, "Weebzone"),
 (589590654800101383, "HealthyHacker")]

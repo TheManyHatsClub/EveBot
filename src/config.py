@@ -53,9 +53,15 @@ coc_roles = {
 member_role = {
     servers["TMHC"]: roles["TMHC"]["Member"]
 }
+
 roles_channel = {
     servers["TMHC"]: 616700269589430274,
     servers["Test"]: 616723907915022339
+}
+
+warning_channel = {
+    servers["TMHC"]: 501440580568743961,
+    servers["Test"]: 805068865322221619
 }
 
 ROOT_DIR = os.path.dirname(sys.modules['__main__'].__file__)

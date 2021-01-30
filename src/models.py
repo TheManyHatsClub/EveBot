@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -64,6 +64,11 @@ class TagReactables(Base):
     function_name = Column(String(50))   # Used to find the function to use
     function_args = Column(String(100))  # Used as args to the function (e.g, in order to specify roles to assign)
 
+class Warning(Base):
+    __tablename__ = "warning"
+    id = Column(String(50), primary_key=True)
+    user = Column(ForeignKey('user.id'))
+    reason = Column(String(500))
 
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
